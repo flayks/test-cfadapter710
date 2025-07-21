@@ -22,5 +22,6 @@
 	},
 	"dependencies": {
 		"@sveltejs/adapter-cloudflare": "^7.1.0"
-	}
+	},
+	"packageManager": "bun@1.2.19"
 }

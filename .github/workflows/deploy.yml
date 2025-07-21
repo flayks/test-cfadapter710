@@ -1,0 +1,40 @@
+name: Deploy Website
+
+on:
+  push:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [webhook-trigger]
+
+env:
+  NODE_VERSION: 22
+  NODE_OPTIONS: "--max_old_space_size=4096"
+
+jobs:
+  # SvelteKit Website
+  website:
+    name: Website
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun i
+
+      - name: Build
+        run: npx turbo build
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./.svelte-kit/cloudflare --project-name=${{ vars.CLOUDFLARE_PROJECT_WEBSITE }}
+          workingDirectory: ./
